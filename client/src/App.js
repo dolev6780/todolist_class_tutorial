@@ -19,6 +19,7 @@ function App() {
   }, [darkMode]);
   return (
     <div className="App transition-all">
+      
       <Router>
           <Routes>
             <Route path='/' element={<ProtectedRoute element={<Home setDarkMode={setDarkMode} darkMode={darkMode}/>}/>}/>
