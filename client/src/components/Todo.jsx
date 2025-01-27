@@ -42,7 +42,7 @@ export default function Todo({ task, setTaskCreated, taskCreated, docId }) {
         key={task.id}
         className={`text-start p-1 rounded-md shadow-md max-w-64 flex justify-between ${
           isCompleted ? "bg-green-300" : "bg-white"
-        } cursor-pointer`}
+        } cursor-pointer `}
         onClick={toggleEditModal}
       >
         <div>

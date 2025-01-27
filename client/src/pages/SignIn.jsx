@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
-export default function SignIn({ setGoTo }) {
+export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -49,7 +49,7 @@ export default function SignIn({ setGoTo }) {
             Not signed yet?
             <span
               onClick={() => {
-                setGoTo("signup");
+                navigate("/signup");
               }}
               className="hover:underline cursor-pointer ml-1"
             >

@@ -1,37 +1,86 @@
 import React, { useState } from "react";
-import AddTaskButton from "./AddTaskButton";
-import { useNavigate, Link } from "react-router-dom";
-import CircleAvatar from "./CircleAvatar";
-import ToolTip from "./ToolTip";
-export default function Bottombar({ handleModal, userName }) {
-  const [toolTip, setToolTip] = useState(false);
+import GridViewIcon from "@mui/icons-material/GridView";
+import SearchIcon from "@mui/icons-material/Search";
+import { Tooltip } from "@mui/material";
+import Zoom from "@mui/material/Zoom";
+import { motion } from "framer-motion";
+import Search from "./Search";
+import WorkSpaces from "./WorkSpaces";
+import Help from "./Help";
+import AddMembers from "./AddMembers";
+import Notifications from "./Notifications";
 
-  const handleToolTip = () => {
-    setToolTip(!toolTip);
-  }
+export default function Bottombar({ handleModal, userName, darkMode, extraNavBarIsOpen, setExtraNavBarIsOpen }) {
+  const [component, setCopmonent] = useState("");
+
+  const showComponent = () => {
+    switch (component) {
+      case "search":
+        return <Search />;
+      case "workspaces":
+        return <WorkSpaces />;
+
+      default:
+        break;
+    }
+  };
 
   return (
-    <div className="flex justify-center w-full">
-      <div className="fixed bottom-0 p-2 bg-blue-600 w-full sm:max-w-96 rounded-t-full m-auto flex justify-between items-center">
-        <div></div>
-        <div className="relative left-6">
-          <AddTaskButton handleModal={handleModal} />
-        </div>
-        {userName !== "" ? (
-          <div className="relative right-4 text-white px-2 font-medium">
-            <ToolTip toolTip={toolTip} text={userName}/>
-            <div onMouseEnter={handleToolTip} onMouseLeave={handleToolTip}>
-            <CircleAvatar unFirstLetter={userName?.substring(0,1).toUpperCase()}/>
-            </div>
-          </div>
-        ) : (
-          <Link to={"/authentication"}>
-            <button className="relative right-4 text-white px-2 font-medium">
-              sign in
-            </button>
-          </Link>
-        )}
-      </div>
+    <div className="bg-white dark:bg-neutral-800 text-neutral-800 dark:text-white transition-all p-4 fixed flex gap-x-2 items-center justify-evenly w-full bottom-0 border-t dark:border-neutral-900 dark:shadow-inner md:hidden">
+      <Tooltip
+        title="Workspaces"
+        arrow
+        slots={{
+          transition: Zoom,
+        }}
+      >
+        <button
+          className="px-2 hover:bg-neutral-200 rounded-full "
+          onClick={() => {
+            setCopmonent("workspaces");
+            setExtraNavBarIsOpen(true);
+          }}
+        >
+          <GridViewIcon />
+        </button>
+      </Tooltip>
+      <Notifications darkMode={darkMode} margin={-6} />
+      <Help darkMode={darkMode} />
+      <AddMembers darkMode={darkMode} />
+      <Tooltip
+        title="Search"
+        arrow
+        slots={{
+          transition: Zoom,
+        }}
+      >
+        <button
+          className="px-2 hover:bg-neutral-200 rounded-full"
+          onClick={() => {
+            setCopmonent("search");
+            setExtraNavBarIsOpen(true);
+          }}
+        >
+          <SearchIcon />
+        </button>
+      </Tooltip>
+      <motion.div
+        className=" p-2 px-4 bg-white text-neutral-800 dark:bg-neutral-800 dark:text-white absolute w-full flex justify-between "
+        style={{}}
+        animate={{
+          y: extraNavBarIsOpen ? -47 : 100,
+        }}
+        transition={{ duration: 0.6, type: "spring" }}
+      >
+        <button
+          onClick={() => {
+            setExtraNavBarIsOpen(false);
+          }}
+        >
+          X
+        </button>
+        {showComponent()}
+      </motion.div>
     </div>
   );
 }

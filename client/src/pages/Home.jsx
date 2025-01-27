@@ -1,95 +1,51 @@
 import React, { useEffect, useState } from "react";
 import CreateTaskModal from "../components/CreateTaskModal";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../firebase";
-import Todo from "../components/Todo";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
 import Bottombar from "../components/Bottombar";
+import NavBar from "../components/NavBar";
 
-export default function Home() {
+export default function Home({ setDarkMode, darkMode }) {
   const [tasks, setTasks] = useState([]);
   const [taskCreated, setTaskCreated] = useState(false);
   const [name, setName] = useState("");
   const [docId, setDocId] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+
+  const [extraNavBarIsOpenTop, setExtraNavBarIsOpenTop] = useState(false);
+  const [extraNavBarIsOpenBottom, setExtraNavBarIsOpenBottom] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const handleModal = () => {
     setIsOpen(!isOpen);
   };
-  useEffect(() => {
-    const getUser = async () => {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          try {
-            const userRef = query(
-              collection(db, "users"),
-              where("email", "==", user.email)
-            );
-            const querySnapshot = await getDocs(userRef);
-            querySnapshot.forEach((doc) => {
-              setName(doc.data().name);
-              setDocId(doc.id);
-            });
-          } catch (error) {
-            console.error("Error fetching user data:", error);
-          }
-        } else {
-          setName("");
-          setDocId("");
-        }
-      });
-    };
 
-    getUser();
-  }, []);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      if (!docId) return;
-      try {
-        const tasksRef = collection(db, "users", docId, "tasks");
-        const querySnapshot = await getDocs(tasksRef);
-        const data = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          data: doc.data(),
-        }));
-        setTasks(data);
-      } catch (error) {
-        console.error("Error fetching tasks:", error);
-      }
-    };
-
-    fetchTasks();
-  }, [docId, taskCreated]);
 
   return (
-    <div className="w-full">
-      <div className="grid grid-flow-col w-full mt-10 px-10">
-        <div className="col-span-1 grid gap-4 ">
-          <h1>To do</h1>
-          {tasks.map((task) => (
-            <Todo
-              key={task.id}
-              task={task}
-              setTaskCreated={setTaskCreated}
-              taskCreated={taskCreated}
-              docId={docId}
-            />
-          ))}
+    <div className="w-full dark:bg-neutral-800 h-screen dark:text-white transition-all">
+      <NavBar
+        userName={name}
+        setDarkMode={setDarkMode}
+        darkMode={darkMode}
+        setExtraNavBarIsOpen={setExtraNavBarIsOpenTop}
+        setIsSidebarOpen={setIsSidebarOpen}
+        extraNavBarIsOpen={extraNavBarIsOpenTop}
+        isSidebarOpen={isSidebarOpen}
+      />
+      <div className={`relative w-[100%-16rem] h-full ${isSidebarOpen ? "md:ml-64" : "0rem"} ${extraNavBarIsOpenTop ? "pt-32" : "pt-16"} transition-all ${extraNavBarIsOpenBottom ? "pb-32" : ""}`}>
+        <div className="grid grid-cols-4 gap-2 h-full">
+          <div className="bg-green-300 col-span-4 md:col-span-3 p-4 text-left">Main Content</div>
+          <div className="bg-blue-300 col-span-1 p-4 hidden md:block">Sidebar Content</div>
         </div>
-        {/* <div className="col-span-1 grid gap-4 ">
-          <h1>Complete</h1>
-        </div> */}
+        {isOpen && (
+          <CreateTaskModal
+            handleModal={handleModal}
+            setTaskCreated={setTaskCreated}
+            taskCreated={taskCreated}
+            docId={docId}
+          />
+        )}
       </div>
-      <div className={`${isOpen ? "" : "hidden"}`}>
-        <CreateTaskModal
-          handleModal={handleModal}
-          setTaskCreated={setTaskCreated}
-          taskCreated={taskCreated}
-          docId={docId}
-        />
-      </div>
-      <Bottombar handleModal={handleModal} userName={name} />
+      <Bottombar handleModal={handleModal} userName={name} darkMode={darkMode} extraNavBarIsOpen={extraNavBarIsOpenBottom} setExtraNavBarIsOpen={setExtraNavBarIsOpenBottom}/>
     </div>
   );
 }
